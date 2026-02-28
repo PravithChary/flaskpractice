@@ -1,7 +1,9 @@
 from flask import Flask, url_for, redirect, render_template, request, session
+from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = "hello"
+app.permanent_session_lifetime = timedelta(minutes=5) # Session will expire in 5 minutes
 
 # Basic Home page
 @app.route("/")
@@ -43,6 +45,7 @@ def template_inheritance():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
+        session.permanent = True
         user = request.form["nm"]
         session["user"] = user
         return redirect(url_for("user"))
