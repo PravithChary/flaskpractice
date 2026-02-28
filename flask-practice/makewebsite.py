@@ -1,6 +1,7 @@
-from flask import Flask, url_for, redirect, render_template, request
+from flask import Flask, url_for, redirect, render_template, request, session
 
 app = Flask(__name__)
+app.secret_key = "hello"
 
 # Basic Home page
 @app.route("/")
@@ -37,19 +38,25 @@ def jinja_page(name):
 def template_inheritance():
     return render_template("template-inheritance.html")
 
-# HTTP Methods
+# HTTP Methods & Session (stores temporary login info)
 # HTTP considers the default method as GET
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         user = request.form["nm"]
-        return redirect(url_for("user", usr=user))
+        session["user"] = user
+        return redirect(url_for("user"))
     else:
         return render_template("login.html")
-    
-@app.route("/<usr>")
-def user(usr):
-    return f"Hello {usr}!"
+
+# Session - if user doesn't exist, it redirects to the login page
+@app.route("/user")
+def user():
+    if "user" in session:
+        user = session["user"]
+        return f"Hello {user}!"
+    else:
+        return redirect(url_for("login"))
 
 if __name__ == "__main__":
     app.run(debug=True) # debug=True makes the app reload automatically when changes are made to the code
